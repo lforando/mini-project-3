@@ -1,0 +1,33 @@
+---
+title: 'Mini-Project #3'
+author: Lauren Forando, Lydia Ivanovic, and Sarah Daum
+date: April    , 2019
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(macleish)
+```
+
+
+Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. 
+```{r}
+names(macleish_layers)
+macleish_trails <- macleish_layers[["trails"]]
+
+macleish_trails <- macleish_trails %>% 
+  rename(difficulty = color) %>%
+  arrange(difficulty)
+
+macleish_trails
+```
+
+```{r}
+#ggplot(data = macleish_trails) +
+  #geom_sf(aes(fill = difficulty)) 
+   #labs(title = )
+```
