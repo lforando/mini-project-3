@@ -11,13 +11,20 @@ output:
 library(tidyverse)
 library(sf)
 library(macleish)
+library(leaflet)
+library(raster)
+library(rgeos)
+library(mapview)
 ```
 
+```{r}
+names(macleish_layers)
+```
 
 Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. 
 ```{r}
 names(macleish_layers)
-macleish_trails <- macleish_layers[["trails"]]
+macleish_trails <- macleish_layers[["trails"]] 
 
 macleish_trails <- macleish_trails %>% 
   rename(difficulty = color) %>%
@@ -27,7 +34,7 @@ macleish_trails
 ```
 
 ```{r}
-#ggplot(data = macleish_trails) +
-  #geom_sf(aes(fill = difficulty)) 
-   #labs(title = )
+ trail_plot <- leaflet() %>% 
+  setView(lng = -72.68513, lat = 42.44177, zoom = 13)
+trail_plot %>% addTiles()
 ```
