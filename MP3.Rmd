@@ -35,29 +35,18 @@ macleish_ladnmarks <- macleish_layers[["landmarks"]]
 macleish_trails
 ```
 
-```{r}
-the_crs <- crs(macleish_trails, asText = TRUE)
-boundary_crs <- st_transofrm(, crs = the_crs)
-
-
-```
-
-
-
-
 
 ```{r}
-#leaflet() %>%
-  #addTiles() %>%
-  #addPolylines(data = pluck(macleish_layers, "contours_30ft"), weight = 2)
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(data = pluck(macleish_layers, "contours_30ft"), 
+               weight = 2, col = "blue") %>%
+  addPolylines(data = pluck(macleish_layers, "trails"), col = "red") %>%
+  addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue")
 
 ```
 
 ```{r}
- #trail_plot <- leaflet() %>% 
-  #setView(lng = -72.68513, lat = 42.44177, zoom = 13)
-#trail_plot %>% addTiles()
-
-#ggplot() +
-  #geom_point(aes(x = geometry))
+#need to create 3 variables of difficulty
+#(adding difficulty column to macleish layers so you can map aesthetic)
 ```
