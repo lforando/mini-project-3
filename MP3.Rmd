@@ -24,17 +24,40 @@ names(macleish_layers)
 Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. 
 ```{r}
 names(macleish_layers)
-macleish_trails <- macleish_layers[["trails"]] 
-
+macleish_trails <- macleish_layers[["trails"]]
 macleish_trails <- macleish_trails %>% 
   rename(difficulty = color) %>%
   arrange(difficulty)
+
+macleish_boundary <- macleish_layers[["boundary"]]
+macleish_ladnmarks <- macleish_layers[["landmarks"]]
 
 macleish_trails
 ```
 
 ```{r}
- trail_plot <- leaflet() %>% 
-  setView(lng = -72.68513, lat = 42.44177, zoom = 13)
-trail_plot %>% addTiles()
+the_crs <- crs(macleish_trails, asText = TRUE)
+boundary_crs <- st_transofrm(, crs = the_crs)
+
+
+```
+
+
+
+
+
+```{r}
+#leaflet() %>%
+  #addTiles() %>%
+  #addPolylines(data = pluck(macleish_layers, "contours_30ft"), weight = 2)
+
+```
+
+```{r}
+ #trail_plot <- leaflet() %>% 
+  #setView(lng = -72.68513, lat = 42.44177, zoom = 13)
+#trail_plot %>% addTiles()
+
+#ggplot() +
+  #geom_point(aes(x = geometry))
 ```
