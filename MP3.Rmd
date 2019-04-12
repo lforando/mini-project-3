@@ -42,7 +42,8 @@ leaflet() %>%
   addPolylines(data = pluck(macleish_layers, "contours_30ft"), 
                weight = 2, col = "blue") %>%
   addPolylines(data = pluck(macleish_layers, "trails"), col = "red") %>%
-  addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue")
+  addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue") %>%
+  addMarkers(data = pluck(macleish_layers, "landmarks"))
 
 ```
 
