@@ -1,13 +1,13 @@
 ---
 title: 'Mini-Project #3'
 author: Lauren Forando, Lydia Ivanovic, and Sarah Daum
-date: April    , 2019
+date: April 14, 2019
 output: 
   html_document:
     code_folding: hide
 ---
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
 library(sf)
 library(macleish)
@@ -21,8 +21,9 @@ library(mapview)
 names(macleish_layers)
 ```
 
-Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. 
+ 
 ```{r}
+#Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation.
 names(macleish_layers)
 macleish_trails <- macleish_layers[["trails"]]
 macleish_trails <- macleish_trails %>% 
@@ -30,13 +31,15 @@ macleish_trails <- macleish_trails %>%
   arrange(difficulty)
 
 macleish_boundary <- macleish_layers[["boundary"]]
-macleish_ladnmarks <- macleish_layers[["landmarks"]]
+macleish_landmarks <- macleish_layers[["landmarks"]]
+macleish_contours<-macleish_layers[["contours_30ft"]]
 
 macleish_trails
 ```
 
 
 ```{r}
+#defining the land to traverse!
 leaflet() %>%
   addTiles() %>%
   addPolylines(data = pluck(macleish_layers, "contours_30ft"), 
@@ -44,10 +47,32 @@ leaflet() %>%
   addPolylines(data = pluck(macleish_layers, "trails"), col = "red") %>%
   addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue") %>%
   addMarkers(data = pluck(macleish_layers, "landmarks"))
-
 ```
 
 ```{r}
-#need to create 3 variables of difficulty
+#need to create 3 variables of difficulty to differentiate trail possibilites for varying visitors
+
 #(adding difficulty column to macleish layers so you can map aesthetic)
+st_transform(macleish_trails, 4326)
+st_transform(macleish_contours, 4326)
+#
+yellow_trail <- st_intersection(macleish_contours, macleish_trails)
 ```
+
+```{r}
+head(yellow_trail)
+```
+
+
+#
+red_trail <-
+  
+#
+white_trail <- 
+```
+
+#calculate the distance between two points
+macleish_layers %>%
+  pluck("trails") %>%
+  filter(grepl("Point", Label)) %>%
+  st_distance()
