@@ -201,8 +201,8 @@ landmark_points <- tribble(~point, ~lat, ~lon,
 )
 ```  
 
-###Converst landmark_points into a sf object
 ```{r, include = FALSE}
+#Convert landmark_points into a sf object
 #We need to convert landmark_points into a sf object before we can plot it using leaflet().
 landmark_sf <- st_as_sf(landmark_points, coords = c("lat", "lon"))
 ```
