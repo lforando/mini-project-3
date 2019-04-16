@@ -1,12 +1,11 @@
 ---
 title: 'Mini-Project #3'
 author: Lauren Forando, Lydia Ivanovic, and Sarah Daum
-date: April 14, 2019
+date: April 16, 2019
 output: 
   html_document:
     code_folding: hide
 ---
-
 ```{r, message=FALSE}
 library(tidyverse)
 library(sf)
@@ -21,9 +20,9 @@ library(mapview)
 names(macleish_layers)
 ```
 
- 
 ```{r}
-#Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation.
+#Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. We decided to only look at trails where there is a 'difficulty' already given, so any trails with N/A for difficulty were omitted as well as roads and the snowmobile trail.
+
 names(macleish_layers)
 macleish_trails <- macleish_layers[["trails"]]
 macleish_trails <- macleish_trails %>% 
@@ -34,19 +33,188 @@ macleish_boundary <- macleish_layers[["boundary"]]
 macleish_landmarks <- macleish_layers[["landmarks"]]
 macleish_contours<-macleish_layers[["contours_30ft"]]
 
-macleish_trails
+macleish_trails2 <- macleish_trails %>% 
+  group_by(name) %>%
+  na.omit(macleish_trails) %>%
+  filter(difficulty == "Blue" | difficulty == "Red" | difficulty == "Yellow" | difficulty == "White")
+
+macleish_trails2
+macleish_contours
+
 ```
 
+```{r}
+#Compute length for each of the trails at MacLeish
+macleish_layers %>% 
+  pluck("trails") %>% 
+  st_length()
+
+trails <- macleish_layers %>% 
+  pluck("trails") %>% 
+  mutate(computed_length = st_length(geometry)) %>%
+  group_by(name) %>%
+  summarise(computed_length = sum(computed_length)) 
+
+trails$computed_length <- as.numeric(str_extract(trails$computed_length, "[0-9]+"))
+
+#using the mutate function, convert meters to miles
+trails <- trails %>%
+  mutate(computed_length = computed_length*0.000621371)
+
+```
 
 ```{r}
-#defining the land to traverse!
+trails_length <- st_intersection(
+  pluck(macleish_layers, "trails"), 
+  pluck(macleish_layers, "contours_30ft")
+)
+
+western <- filter(trails_length, name == "Western Loop")
+western_pts <- western %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+easy_out <- filter(trails_length, name == "Easy Out")
+easy_out_pts <- easy_out %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+vernal_pool_loop <- filter(trails_length, name == "Vernal Pool Loop")
+vernal_pool_loop_pts <- vernal_pool_loop %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+porcupine_trail <- filter(trails_length, name == "Porcupine Trail")
+porcupine_trail_pts <- porcupine_trail %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+popular_hill_road <- filter(trails_length, name == "Popular Hill Road ")
+popular_hill_road_pts <- popular_hill_road %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+eastern_loop <- filter(trails_length, name == "Eastern Loop")
+eastern_loop_pts <- eastern_loop %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+entry_trail <- filter(trails_length, name == "entry trail")
+entry_trail_pts <- entry_trail %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+driveway <- filter(trails_length, name == "Driveway")
+driveway_pts <- driveway %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+
+snowmobile_trail <- filter(trails_length, name == "Snowmobile Trail")
+snowmobile_trail_pts <- snowmobile_trail %>% 
+  st_cast("MULTIPOINT") %>% 
+  st_cast("POINT")
+```
+
+```{r}
+#using the shenandoah equation, figure out the change in elevation for each trail
+shenandoah_western <- western_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_easyout <- easy_out_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_veranl_pool <- vernal_pool_loop_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_porcupine <- porcupine_trail_pts  %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_popular_hill <- popular_hill_road_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_eastern <- eastern_loop_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_entry_trail <- entry_trail_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_driveway <- driveway_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_snowmobile <- snowmobile_trail_pts %>%
+  dplyr::select("CONTOUR_FT") %>%
+  mutate(elevation_change = max(CONTOUR_FT) - min(CONTOUR_FT)) %>%
+  group_by(elevation_change) %>%
+  summarize(mean(CONTOUR_FT))
+
+shenandoah_eastern
+shenandoah_porcupine
+shenandoah_snowmobile
+shenandoah_veranl_pool
+shenandoah_western
+```
+
+```{r}
+#if-else
+```
+
+###Define points for landmarks
+```{r}
+#Here we are defining points for landmarks so that this data graphic is interactive and users can see where landmarks are (and on what trail path) at MacLeish.
+landmark_points <- tribble(~point, ~lat, ~lon,
+"Avery Brook Weir", -72.67493, 42.45057,
+"WhatelyMet Observatory & Tower", -72.68052, 42.44832,
+"High Point (938ft)", -72.68074, 42.4537,
+"Low Point (608ft)", -72.67493, 42.44635,
+"38' Concrete Well", -72.68039, 42.44651,
+"Spring to Tom Mahar", -72.67976, 42.44581,
+"Spring to Tom Mahar", -72.67925, 42.4457,
+"18' Diameter Spring to Cooney", -72.68041, 42.44737,
+"Poetry Cairns", -72.6809, 42.45038,
+"Bechtel Environmental Classroom", -72.67918, 42.44921
+)
+```  
+
+###Converst landmark_points into a sf object
+```{r}
+#We need to convert landmark_points into a sf object before we can plot it using leaflet().
+landmark_sf <- st_as_sf(landmark_points, coords = c("lat", "lon"))
+```
+
+```{r}
+#defining the land to traverse
 leaflet() %>%
   addTiles() %>%
+  setView( -72.67238, 42.45885, 14) %>%
   addPolylines(data = pluck(macleish_layers, "contours_30ft"), 
-               weight = 2, col = "blue") %>%
-  addPolylines(data = pluck(macleish_layers, "trails"), col = "red") %>%
+               weight = 2, col = "hotpink") %>%
+  addPolylines(data = pluck(macleish_layers, "trails"), col = "yellow") %>%
   addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue") %>%
-  addMarkers(data = pluck(macleish_layers, "landmarks"))
+  addMarkers(data = landmark_sf, popup = ~point)
 ```
 
 ```{r}
@@ -63,16 +231,3 @@ yellow_trail <- st_intersection(macleish_contours, macleish_trails)
 head(yellow_trail)
 ```
 
-
-#
-red_trail <-
-  
-#
-white_trail <- 
-```
-
-#calculate the distance between two points
-macleish_layers %>%
-  pluck("trails") %>%
-  filter(grepl("Point", Label)) %>%
-  st_distance()
