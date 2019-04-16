@@ -16,11 +16,11 @@ library(rgeos)
 library(mapview)
 ```
 
-```{r}
+```{r, include = FALSE}
 names(macleish_layers)
 ```
 
-```{r}
+```{r, include = FALSE}
 #Create a new variable named macleish_trails which only includes the data about the trails and arranges them by difficulty. Color was renamed to 'difficulty' for easier understanding and explanation. We decided to only look at trails where there is a 'difficulty' already given, so any trails with N/A for difficulty were omitted as well as roads and the snowmobile trail.
 
 names(macleish_layers)
@@ -43,7 +43,7 @@ macleish_contours
 
 ```
 
-```{r}
+```{r, include = FALSE}
 #Compute length for each of the trails at MacLeish
 macleish_layers %>% 
   pluck("trails") %>% 
@@ -63,7 +63,7 @@ trails <- trails %>%
 
 ```
 
-```{r}
+```{r, include = FALSE}
 trails_length <- st_intersection(
   pluck(macleish_layers, "trails"), 
   pluck(macleish_layers, "contours_30ft")
@@ -115,7 +115,7 @@ snowmobile_trail_pts <- snowmobile_trail %>%
   st_cast("POINT")
 ```
 
-```{r}
+```{r, include = FALSE}
 #using the shenandoah equation, figure out the change in elevation for each trail
 shenandoah_western <- western_pts %>%
   dplyr::select("CONTOUR_FT") %>%
@@ -176,14 +176,16 @@ shenandoah_porcupine
 shenandoah_snowmobile
 shenandoah_veranl_pool
 shenandoah_western
+
+#only these trails had a change in elevation. 
 ```
 
 ```{r}
 #if-else
 ```
 
-###Define points for landmarks
-```{r}
+```{r, include = FALSE}
+#Define points for landmarks
 #Here we are defining points for landmarks so that this data graphic is interactive and users can see where landmarks are (and on what trail path) at MacLeish.
 landmark_points <- tribble(~point, ~lat, ~lon,
 "Avery Brook Weir", -72.67493, 42.45057,
@@ -200,12 +202,12 @@ landmark_points <- tribble(~point, ~lat, ~lon,
 ```  
 
 ###Converst landmark_points into a sf object
-```{r}
+```{r, include = FALSE}
 #We need to convert landmark_points into a sf object before we can plot it using leaflet().
 landmark_sf <- st_as_sf(landmark_points, coords = c("lat", "lon"))
 ```
 
-```{r}
+```{r, include = FALSE}
 #defining the land to traverse
 leaflet() %>%
   addTiles() %>%
@@ -219,7 +221,6 @@ leaflet() %>%
 
 ```{r}
 #need to create 3 variables of difficulty to differentiate trail possibilites for varying visitors
-
 #(adding difficulty column to macleish layers so you can map aesthetic)
 st_transform(macleish_trails, 4326)
 st_transform(macleish_contours, 4326)
