@@ -6,6 +6,9 @@ output:
   html_document:
     code_folding: hide
 ---
+Link to Github Repository ^[git@github.com:lforando/mini-project-3.git]
+
+**An analysis of the beautiful trails at Smith College's MacLeish field.**
 ```{r, message=FALSE}
 library(tidyverse)
 library(sf)
