@@ -17,6 +17,7 @@ library(leaflet)
 library(raster)
 library(rgeos)
 library(mapview)
+library(rgdal)
 ```
 
 ```{r, include = FALSE}
@@ -210,28 +211,37 @@ landmark_points <- tribble(~point, ~lat, ~lon,
 landmark_sf <- st_as_sf(landmark_points, coords = c("lat", "lon"))
 ```
 
+
+
+
+```{r}
+five_trails <- trails %>% 
+  filter(name == "Eastern Loop" | name == "Western Loop"| name == "Porcupine Trail"| name == "Snowmobile Trail" | name == "Vernal Pool Loop")
+five_trails$elevation_change = c(30,0,120,30,90)
+```
+
+
+```{r}
+#need to create 3 variables of difficulty to differentiate trail possibilites for varying visitors
+#(adding difficulty column to macleish layers so you can map aesthetic)
+five_trails <- five_trails %>%  
+mutate(level = ifelse((computed_length < .5 | elevation_change < 50), "easy",
+       ifelse ((computed_length >=.5 & computed_length<= 1.5 | elevation_change > 50 & elevation_change< 100), "moderate", "difficult")))
+```
+
+```{r}
+color_codes <- colorFactor(c("orange","yellow", "green"), domain = five_trails$level)
+```
+
 ```{r, include = FALSE}
 #defining the land to traverse
 leaflet() %>%
   addTiles() %>%
   setView( -72.67238, 42.45885, 14) %>%
+  addPolylines(data = five_trails, color = ~color_codes(level)) %>%
   addPolylines(data = pluck(macleish_layers, "contours_30ft"), 
-               weight = 2, col = "hotpink") %>%
-  addPolylines(data = pluck(macleish_layers, "trails"), col = "yellow") %>%
-  addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue") %>%
-  addMarkers(data = landmark_sf, popup = ~point)
+               weight = .5, col = "blue") %>%
+  addPolylines(data = pluck(macleish_layers, "boundary"), col = "blue", weight = .5) %>%
+  addMarkers(data = landmark_sf, popup = ~point) %>% 
+  addLegend("bottomright", title = "Trail Difficulty", colors = c("green", "yellow", "orange"), values = ~level, labels = c("Easy", "Moderate", "Difficult"))
 ```
-
-```{r}
-#need to create 3 variables of difficulty to differentiate trail possibilites for varying visitors
-#(adding difficulty column to macleish layers so you can map aesthetic)
-st_transform(macleish_trails, 4326)
-st_transform(macleish_contours, 4326)
-#
-yellow_trail <- st_intersection(macleish_contours, macleish_trails)
-```
-
-```{r}
-head(yellow_trail)
-```
-
